@@ -1,0 +1,97 @@
+# HTML web scraper for static webpages
+# This code leverages a website with fake job postings for this exercise
+# Example website is:  https://realpython.github.io/fake-jobs/
+
+# Install 'requests' library
+$ python -m pip install requests
+
+# Retrieve some (tons of) HTML using Get request:
+import requests
+URL = "https://realpython.github.io/fake-jobs/"
+page = requests.get(URL)
+print(page.text)
+
+#parse the HTML code with 'beautiful soup' library
+$ python -m pip install beautifulsoup4
+
+# import the library and create a bautiful soup object
+import requests
+from bs4 import BeautifulSoup
+
+URL = "https://realpython.github.io/fake-jobs/"
+page = requests.get(URL)
+
+soup = BeautifulSoup(page.content, "html.parser")
+
+# find a specific HTML element by its ID:
+results = soup.find(id="ResultsContainer")
+
+# use 'prettify' for easier viewing
+print(results.prettify())
+
+# find elements by HTML class name, the only ones we are interested in in this case
+job_elements = results.find_all("div", class_="card-content")
+
+# see all of those:
+for job_element in job_elements:
+    print(job_element, end="\n"*2)
+
+# pick out the child elements by leveraging '.find'
+for job_element in job_elements:
+    title_element = job_element.find("h2", class_="title")
+    company_element = job_element.find("h3", class_="company")
+    location_element = job_element.find("p", class_="location")
+    print(title_element)
+    print(company_element)
+    print(location_element)
+    print()
+
+# Extract the text from HTML elements by leveraging '.text'
+for job_element in job_elements:
+    title_element = job_element.find("h2", class_="title")
+    company_element = job_element.find("h3", class_="company")
+    location_element = job_element.find("p", class_="location")
+    print(title_element.text)
+    print(company_element.text)
+    print(location_element.text)
+    print()
+
+# strip it of whitespace using '.strip'
+for job_element in job_elements:
+    title_element = job_element.find("h2", class_="title")
+    company_element = job_element.find("h3", class_="company")
+    location_element = job_element.find("p", class_="location")
+    print(title_element.text.strip())
+    print(company_element.text.strip())
+    print(location_element.text.strip())
+    print()
+
+# if you're looking for only python jobs, filter for that
+python_jobs = results.find_all("h2", string="Python")
+# that previous variable will return nothing since its a literal string
+
+# use a function (lambda) that will convert to lowercase
+python_jobs = results.find_all(
+    "h2", string=lambda text: "python" in text.lower()
+)
+
+# this function works but doesnt include all the info we need. You need access to the great grandparent elements
+python_jobs = results.find_all(
+    "h2", string=lambda text: "python" in text.lower()
+)
+
+python_job_elements = [
+    h2_element.parent.parent.parent for h2_element in python_jobs
+]
+
+# now include python_job_elements in your script
+for job_element in python_job_elements:
+    title_element = job_element.find("h2", class_="title")
+    company_element = job_element.find("h3", class_="company")
+    location_element = job_element.find("p", class_="location")
+    print(title_element.text.strip())
+    print(company_element.text.strip())
+    print(location_element.text.strip())
+    print()
+
+# and voila there it is!
